@@ -35,7 +35,7 @@ class Tensor:
             x = relu(a)
             dL/da = dL/dx * dx/da
             """
-            self.grad += (out.data > 0) * out.data * out.grad
+            self.grad += (self.data > 0) * out.grad
         out._backward = _backward
         return out
 
