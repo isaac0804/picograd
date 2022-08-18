@@ -5,9 +5,21 @@ class Tensor:
         self.grad = 0.0
         self._backward = lambda: None
         self._children = set(_children)
-
-        # TODO: Shape
-        # self.shape = shape
+        self.shape = []
+        self.stride = []
+        def get_shape(x):
+            if isinstance(x, list):
+                self.shape.append(len(x))
+                get_shape(x[0])
+        def get_stride():
+            self.stride = [1]
+            for i in reversed(self.shape):
+                self.stride.append(self.stride[-1]*i)
+            self.stride.reverse()
+        get_shape(self.data)
+        get_stride()
+        self.device = "cpu"
+        self.dtype = "float32"
 
     def backward(self):
         nodes = []
