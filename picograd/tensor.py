@@ -1,25 +1,30 @@
 
+"""
+Current thought
+1. Each variable stores it own gradient, value and children.
+2. Tensor is a class that holds many variable with shape and stride information.
+
+Cons
+1. Backprop might be slow.
+2. Memory layout is not optimized.
+
+Maybe we should save values and gradient (in the form of container) directly on the tensor.
+(Is container class necessary?), to implement operation?
+Nah i will use numpy instead
+"""
+import numpy as np
+
 class Tensor:
     def __init__(self, data, _children=()):
-        self.data = data
-        self.grad = 0.0
+        self.data = np.array(data, dtype=np.float64)
+        self.grad = np.zeros_like(self.data, dtype=np.float64)
         self._backward = lambda: None
         self._children = set(_children)
-        self.shape = []
-        self.stride = []
-        def get_shape(x):
-            if isinstance(x, list):
-                self.shape.append(len(x))
-                get_shape(x[0])
-        def get_stride():
-            self.stride = [1]
-            for i in reversed(self.shape):
-                self.stride.append(self.stride[-1]*i)
-            self.stride.reverse()
-        get_shape(self.data)
-        get_stride()
         self.device = "cpu"
         self.dtype = "float32"
+
+        self.shape = self.data.shape
+        self.stride = self.data.strides
 
     def backward(self):
         nodes = []
@@ -34,9 +39,6 @@ class Tensor:
         self.grad = 1.0
         for node in reversed(nodes):
             node._backward()
-        
-        for node in nodes:
-            print(node, node.grad)
     
     def relu(self):
         out = Tensor(self.data * (self.data > 0), (self,))
@@ -97,7 +99,7 @@ class Tensor:
             x = a**b
             dL/da = dL/dx * b * a ** (b - 1)
             """
-            self.grad += other.data * self.data ** (other.data - 1) * out.grad
+            self.grad += other.data * self.data ** (other.data - 1.0) * out.grad
         out._backward = _backward
         return out
     

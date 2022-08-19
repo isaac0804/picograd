@@ -2,14 +2,10 @@ from picograd.tensor import Tensor
 
 def main():
     
-    a = Tensor(3.0)
+    a = Tensor([9.0, 1.1])
     b = Tensor([5.0, 2.0])
-    c = Tensor([[1.0, 3.0], [5.0, 2.0], [1.0, 2.0]])
     print(a.shape)
     print(b.shape)
-    print(c.shape)
-
-    exit()
 
     def forward(a, b):
         c = a+b
@@ -20,11 +16,11 @@ def main():
 
     L = forward(a, b)
     L.backward()
-    print(b.grad)
+    print(a.grad)
 
     def test_grad():
-        h = 1e-6
-        grad = (forward(a, b+h) - forward(a, b)) / h
+        h = Tensor([1e-6, 1e-6])
+        grad = (forward(a+h, b) - forward(a, b)) / h
         print(grad)
     
     test_grad()
